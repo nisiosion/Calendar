@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>卓シフト表</title>
+
+<style>
+body { font-family: -apple-system, sans-serif; }
+table { border-collapse: collapse; margin-top: 10px; }
+th, td {
+  border: 1px solid #ccc;
+  padding: 6px;
+  min-width: 90px;
+  text-align: center;
+}
+th { background: #f2f2f2; }
+td {
+  background: #fff;
+}
+td:focus {
+  outline: none;
+  background: #e8f3ff;
+}
+.controls {
+  margin-bottom: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<h3>卓シフト表</h3>
+
+<div class="controls">
+  <input type="date" id="date">
+</div>
+
+<table id="table">
+  <tr>
+    <th>卓/時間</th>
+    <th>17</th>
+    <th>25</th>
+  </tr>
+  <tr>
+    <th>シフト</th>
+    <td contenteditable></td>
+    <td contenteditable></td>
+  </tr>
+  <tr><th>A</th><td contenteditable></td><td contenteditable></td></tr>
+  <tr><th>B</th><td contenteditable></td><td contenteditable></td></tr>
+  <tr><th>C</th><td contenteditable></td><td contenteditable></td></tr>
+  <tr><th>D</th><td contenteditable></td><td contenteditable></td></tr>
+  <tr><th>半個室</th><td contenteditable></td><td contenteditable></td></tr>
+  <tr><th>個室</th><td contenteditable></td><td contenteditable></td></tr>
+</table>
+
+<script>
+const dateInput = document.getElementById("date");
+const table = document.getElementById("table");
+
+function getKey(date) {
+  return "shift_" + date;
+}
+
+function save() {
+  const data = [];
+  [...table.rows].forEach((row, i) => {
+    if (i === 0) return;
+    data.push([...row.cells].slice(1).map(c => c.innerText));
+  });
+  localStorage.setItem(getKey(dateInput.value), JSON.stringify(data));
+}
+
+function load() {
+  const raw = localStorage.getItem(getKey(dateInput.value));
+  const data = raw ? JSON.parse(raw) : [];
+  [...table.rows].forEach((row, i) => {
+    if (i === 0) return;
+    [...row.cells].slice(1).forEach((cell, j) => {
+      cell.innerText = data[i-1]?.[j] || "";
+    });
+  });
+}
+
+dateInput.addEventListener("change", load);
+table.addEventListener("input", save);
+
+// 初期日付 = 今日
+dateInput.valueAsDate = new Date();
+load();
+</script>
+
+</body>
+</html>
